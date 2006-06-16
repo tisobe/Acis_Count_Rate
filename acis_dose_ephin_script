@@ -1,0 +1,4 @@
+source /home/mta/.login_cron
+source /home/mta/.ascrc
+
+perl /data/mta4/MTA/bin/acis_dose_ephin_plot.perl
