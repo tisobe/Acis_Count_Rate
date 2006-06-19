@@ -1,6 +1,7 @@
 #!/proj/axaf/bin/perl
 use PGPLOT;
-use lib '/opt/local/lib/perl5/5.00501/sun4-solaris-thread';			#on colossus
+use lib '/home/rpete/local/perlmods/sun4-solaris-thread';
+#use lib '/opt/local/lib/perl5/5.00501/sun4-solaris-thread';			#on colossus
 use CFITSIO qw( :shortnames );
 
 #########################################################################################

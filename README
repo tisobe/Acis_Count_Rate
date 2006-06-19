@@ -3,36 +3,161 @@
 Computing ACIS Count Rate
 -------------------------
 
+##################
+Directory Settings
+##################
+
+$bin_dir       = '/data/mta/MTA/bin/';
+$data_dir      = '/data/mta/MTA/data/';
+$web_dir       = '/data/mta/www/mta_dose_count/';
+$hosue_keeping = "/data/mta_www/mta_dose_count/house_keeping/";
+
+Notation:
+
+$mon_name = $web_dir/SEP2005 etc
+
+##################################
 Extract Radiation Zone Information
-----------------------------------
+##################################
+
 acis_dose_rad_wrap_script
 acis_dose_rad_script
-acis_dose_radiation_data.perl
 
+acis_dose_radiation_data.perl
+-----------------------------
+This script extracts radiation zone start and end time.
+
+Input:
+	/data/mpcrit1/mplogs/$syear/$cmon
+	 	where syear: year such as 2006
+		      cmon:  month such as JUN
+
+Output:
+	$web_dir/rad_data
+
+
+
+##############################
 Extract ACIS Dose Information
-------------------------------
+##############################
+
 acis_dose_wrap_script
 acis_dose_script
-acis_dose_plot.perl
-acis_dose_print_html.perl
 
-Extract EPHIN Information
+acis_dose_plot.perl
+-------------------
+This script creates acis count rate plots.
+
+Input:
+	$house_keeping/bad_fits_file: a un-readable fits file from the past
+	$house_keeping/old_file_list: a list of already processed data
+	$web_dir/rad_data:	      a radiation zone start and end time
+	$mon_name/ccd<ccd id>:        past count rate data (of this month).
+
+	/dsops/ap/sdp/cache/*/acis/*evt1.fits: acis event 1files
+		such as /dsops/ap/sdp/cache/2006_06_16/acis/acisf58927_000N001_evt1.fits
+
+Output:
+	$house_keeping/old_file_list:     a list of already processed data
+	$mon_name/$ccd_name:              a updated countrate data
+	$mon_name/acis_dose_ccd_<id>.gif: a count rate trend of the month
+
+Special Setting:
+	In this script, we use fit IO routine, and need to declear
+	at the header.
+
+	use lib '/home/rpete/local/perlmods/sun4-solaris-thread'
+	use CFITSIO qw( :shortnames );
+
+
+acis_dose_print_html.perl
 -------------------------
+This script creates and updates html pages for count rate plots.
+
+Input:
+	none
+
+Output:
+	$web_dir/main_acis_dose_plot.html
+	$web_dir/$mon_name/acis_<mon><year>_dose_plot>html
+		such as: acis_nov2000_dose_plot.html
+	$web_dir/long_term_plot.html
+	$web_dir/month_avg_img
+	$web_dir/month_avg_spec
+	$web_dir/$mon_name/acis_dose_ccd_<ccd id> (ccd id: 2 - 9)
+	$web_dir/$mon_name/acis_dose_ccd_5_7
+	$web_dir/$mon_name/ephin_rate
+
+##########################
+Extract EPHIN Information
+##########################
+
 acis_dose_ephin_wrap_script
 acis_dose_ephin_script
-acis_dose_ephin_plot.perl
 
+acis_dose_ephin_plot.perl
+-------------------------
+This script extracts and plots ephin data.
+
+Input:
+	$mon_name/ephin_rate:	           the past ephin rate data
+	$web_dir/rad_data: 	           the radiation zone start and end time
+	$house_keeping/ephin_old_dir_list: the past ephin data file list
+
+	/dsops/ap/sdp/cache/*/ephin/*lc1.fits
+		such as: /dsops/ap/sdp/cache/2006_06_17/ephin/ephinf266958046N001_lc1.fits
+
+Output:
+	$mon_name/ephin_rate:	           the updated ephin rate data
+	$mon_name/ephin_rate.gif:	   the ephin rate plot for the month
+	$house_keeping/ephin_old_dir_list: the past ephin data file list
+
+Special Setting:
+	In this script, we use fit IO routine, and need to declear
+	at the header.
+
+	use lib '/home/rpete/local/perlmods/sun4-solaris-thread'
+	use CFITSIO qw( :shortnames );
+
+#####################
 Plot Long Term Trends
----------------------
+#####################
+
 acis_dose_long_term_wrap_script
 acis_dose_long_term_script
-acis_dose_long_term_plot.perl
 
+acis_dose_long_term_plot.perl
+-----------------------------
+This script plots count reates of s5, s6, and s7 for the entire period.
+
+Input:
+	$mon_name/ccd<ccd id>
+
+Output:
+	web_dir/".'long_term_plot.gif
+
+
+
+###############################
 Plot Monthly Average Dose Plots
--------------------------------
+###############################
+
 acis_dose_month_avg_wrap_script
 acis_dose_month_avg_script
+
 acis_dose_month_avg.perl
+------------------------
+This scripts creates monthly averaged plots.
+
+Input:
+	$mon_name/ccd<ccd id>
+	$web_dir/month_avg_data:	the past monthly averaged data
+
+Output:
+	$web_dir/month_avg_data:	the updated monthly averaged data
+	$web_dir/month_avg_img.gif:	the monthly averaged trand plot for img
+	$web_dir/month_avg_spec.gif:    the monthly averaged trend plot for spc
+	$web_dir/month_avg_bi.gi:       the monthly averaged trend plot for bi
 
 
 Makefile
