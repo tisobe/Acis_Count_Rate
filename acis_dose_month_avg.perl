@@ -7,7 +7,7 @@ use PGPLOT;
 #											#
 #	author: t. isobe (tisobe@cfa.harvard.edu)					#
 #											#
-#	last update: Jun 16, 2006							#
+#	last update: Jun 20, 2006							#
 #											#
 #########################################################################################
 
@@ -16,11 +16,13 @@ use PGPLOT;
 #----- setting directories
 #
 
-$bin_dir       = '/data/mta/MTA/bin/';
-$data_dir      = '/data/mta/MTA/data/';
+$bin_dir       = '/data/mta4/MTA/bin/';
+$data_dir      = '/data/mta4/MTA/data/';
 $web_dir       = '/data/mta/www/mta_dose_count/';
 $hosue_keeping = "/data/mta_www/mta_dose_count/house_keeping/";
 
+$web_dir       = '/data/mta/www/mta_dose_count_test/';
+$hosue_keeping = "/data/mta_www/mta_dose_count_test/house_keeping/";
 ######################################################
 
 #
@@ -190,6 +192,7 @@ sub plot_img {
 		$ccd   = 'ccd'."$ix";
 		pgptxt($xpos + $xdiff2, $ymax * 0.92, 0, 0, $ccd);
 	
+		pgmove($time[0], $y_val[0]);
 		pgpt(1, $time[0], $y_val[0], $point);
 		for($im = 1; $im < $count-1; $im++) {
 			unless($y_val[$im] eq '*****' || $y_val[$im] eq ''){
@@ -266,6 +269,7 @@ sub plot_spec {
 		$ccd   = 'ccd'."$ix";
 		pgptxt($xpos + $xdiff2, $ymax * 0.92, 0, 0, $ccd);
 	
+		pgmove($time[0], $y_val[0]);
 		pgpt(1, $time[0], $y_val[0], $point);
 		for($im = 1; $im < $count-1; $im++) {
 			unless($y_val[$im] eq '*****' || $y_val[$im] eq ''){
@@ -317,8 +321,8 @@ sub plot_bi {
 	$ic = 0;
 	foreach $ix (5, 7) {
 		@y_val = @{ccd.$ix};
-		$point = -1 * $ic - 3;
-		$color = $ix - 3;
+		$point = -1 * $ic + 3;
+		$pcolor = $ix - 3;
 	
 		$xpos = $xmin + $xdiff * $ic + $xdiff2;
 		$ic++;
@@ -327,9 +331,12 @@ sub plot_bi {
 		$ccd = 'ccd'."$ix";
 		pgptxt($xpos + $xdiff2, $ymax * 0.92, 0, 0, $ccd);
 	
+		pgmove($time[0], $y_val[0]);
 		pgpt(1, $time[0], $y_val[0], $point);
+
 		for($im = 1; $im < $count-1; $im++) {
-			unless($y_val[$im] eq '*****' || $y_val[$im] eq ''){
+#			unless($y_val[$im] eq '*****' || $y_val[$im] eq ''){
+			if($time[$im]  > $xmin || $time[$im] < $xmax){
 				pgdraw($time[$im], $y_val[$im]);
 				pgpt(1,$time[$im], $y_val[$im], $point);
 			}

@@ -16,11 +16,13 @@ use PGPLOT;
 #----- setting directories
 #
 
-$bin_dir       = '/data/mta/MTA/bin/';
-$data_dir      = '/data/mta/MTA/data/';
+$bin_dir       = '/data/mta4/MTA/bin/';
+$data_dir      = '/data/mta4/MTA/data/';
 $web_dir       = '/data/mta/www/mta_dose_count/';
 $hosue_keeping = "/data/mta_www/mta_dose_count/house_keeping/";
 
+$web_dir       = '/data/mta/www/mta_dose_count_test/';
+$hosue_keeping = "/data/mta_www/mta_dose_count_test/house_keeping/";
 ######################################################
 
 #

@@ -1,4 +1,5 @@
-#!/proj/axaf/bin/perl
+#!/usr/bin/perl
+
 use PGPLOT;
 use lib '/home/rpete/local/perlmods/sun4-solaris-thread';
 #use lib '/opt/local/lib/perl5/5.00501/sun4-solaris-thread';			#on colossus
@@ -10,7 +11,7 @@ use CFITSIO qw( :shortnames );
 #                                                                                       #
 #	author: t. isobe (tisobe@cfa.harvard.edu)					#
 #											#
-#	Last Update: Jun 16, 2006							#
+#	Last Update: Jun 20, 2006							#
 #                                                                                       #
 #########################################################################################
 
@@ -19,11 +20,13 @@ use CFITSIO qw( :shortnames );
 #----- setting directories
 #
 
-$bin_dir       = '/data/mta/MTA/bin/';
-$data_dir      = '/data/mta/MTA/data/';
+$bin_dir       = '/data/mta4/MTA/bin/';
+$data_dir      = '/data/mta4/MTA/data/';
 $web_dir       = '/data/mta/www/mta_dose_count/';
 $house_keeping = "/data/mta_www/mta_dose_count/house_keeping/";
 
+$web_dir       = '/data/mta/www/mta_dose_count_test/';
+$house_keeping = "/data/mta_www/mta_dose_count_test/house_keeping/";
 ######################################################
 
 #
@@ -71,7 +74,7 @@ foreach $file (@input_data_list) {
 	ffopen($fptr, $read_file, $iomode, $status); 	# open file, fptr: pointer
 	ffgnrw($fptr, $nrow, $status);            	# get the table row number
 
-	$incl       = 0.3*$nrow;
+	$incl       = 0.3 * $nrow;
 	$incl       = int ($incl);
 	$add_time   = 0;
 	$start_save = 0;
@@ -169,7 +172,7 @@ foreach $file (@input_data_list) {
 		@time  = ();
 		foreach $time_t (@time_list){
 			$ptime = $dom + ($add_time + $time_t - $start)/86400;
-			push(@time,$ptime);
+			push(@time, $ptime);
 		}
 
 		$add_time = $add_time+ $time_list[$bin_cnt-1] - $start;
@@ -178,7 +181,7 @@ foreach $file (@input_data_list) {
 #--- so that the next 1/3 starts from a correct time
 #
 		
-		open(OUT,">>./$mon_name/ephin_rate");
+		open(OUT,">>$mon_name/ephin_rate");
 		for($ival = 0; $ival < $bin_cnt; $ival++){
 			print OUT  "$time[$ival]\t";
 			print OUT  "$cnt_p4_save[$ival]\t";
@@ -260,7 +263,7 @@ while(<FH>) {
 }
 close(FH);
 
-$xmin  = $time[0];
+$xmin  = $month_min;
 $xmax  = $time[$count -1];
 
 @temp  = sort{$a <=> $b} @p4;
@@ -485,7 +488,7 @@ sub rm_dupl {
                	push(@new_data, $line);
        	}
 
-       	open(OUT,">./ephin_rate_clean");
+       	open(OUT,">ephin_rate_clean");
        	foreach $line (@new_data) {
                	print OUT "$line\n";
        	}
@@ -620,8 +623,11 @@ sub check_date {
                         push(@end_month,   $lmon);
                         push(@start_year,  $tyear);
                         push(@start_month, $lmon);
-
-                        if($tyear == 2000 || $tyear == 2004 || $tyear == 2008 || $tyear ==2012){
+#
+#--- check a leap year
+#
+			$ychk = 4 * int (0.25 * $tyear);
+			if($tyear == $ychk){
                                 $lday++;
                                 push(@end_date, '29');
                         }else{
@@ -661,8 +667,9 @@ sub check_date {
 #
 #--- set start and end time
 #
-		$start = "$uyear".':'."$cmon".':01:00:00:00';
-		change_date_format($start);
+
+		$start_time = "$uyear".'-'."$cmon".'-01T00:00:00';
+		st_change_date_format();
 
 		$month_min = $dom;
 		$month_max = $month_min + 31;

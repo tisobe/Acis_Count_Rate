@@ -10,7 +10,7 @@ use CFITSIO qw( :shortnames );
 #											#
 #	Author: Takashi Isobe (tisobe@cfa.havard.edu)					#
 #											#
-#	Last Update: Jun 16, 2006							#
+#	Last Update: Jun 20, 2006							#
 #											#
 #########################################################################################
 
@@ -19,11 +19,13 @@ use CFITSIO qw( :shortnames );
 #----- setting directories
 #
 
-$bin_dir       = '/data/mta/MTA/bin/';
-$data_dir      = '/data/mta/MTA/data/';
+$bin_dir       = '/data/mta4/MTA/bin/';
+$data_dir      = '/data/mta4/MTA/data/';
 $web_dir       = '/data/mta/www/mta_dose_count/';
-$hosue_keeping = "/data/mta_www/mta_dose_count/house_keeping/";
+$house_keeping = "/data/mta_www/mta_dose_count/house_keeping/";
 
+$web_dir       = '/data/mta/www/mta_dose_count_test/';
+$house_keeping = "/data/mta_www/mta_dose_count_test/house_keeping/";
 ######################################################
 
 #
@@ -46,6 +48,7 @@ st_change_date_format();
 
 $month_min = $dom;
 $month_max = $month_min + 31;
+
 
 #
 #----  find new data file from /dsops  
@@ -165,7 +168,7 @@ foreach $file (@input_data_list) {
 #
 #---  reading time and ccd_id; data are in @time_data and @ccd_data
 #
-		read_time_cdd();
+		read_time_ccd();
 				
 #
 #--- initialize
@@ -489,7 +492,7 @@ sub rm_dupl {
 
 	for($i = 0; $i < 10; $i++) {
 		$file = "$mon_name".'/ccd'."$i";
-        	open(FH,"./$file");
+        	open(FH,"$file");
         	@data = ();
         	while(<FH>) {
                 	chomp $_;
@@ -504,15 +507,17 @@ sub rm_dupl {
         	$comp_line   = shift(@sorted_data);
         	@new_data    = ("$comp_line");
 
+		OUTER:
 		foreach $line (@sorted_data){
-			if($line eq $comp_line){
-			}else{
-				$comp_line = $line;
-				push(@new_data, $comp_line);
+			foreach $comp (@new_data){
+				if($line eq $comp){
+					next OUTER;
+				}
 			}
-	
+			push(@new_data, $line);
 		}
-        	open(OUT,">$file");
+
+        	open(OUT," > $file");
         	foreach $line (@new_data) {
                 	print OUT "$line\n";
         	}
@@ -525,7 +530,7 @@ sub rm_dupl {
 ### read_time_ccd: extract time and ccd id       ###
 ####################################################
 
-sub read_time_cdd {
+sub read_time_ccd {
         $datatype  = 82;                #data type
         $firstelem = 1;                 #first element in a vector
         $nulval    = 0;                 #value to represent undefined pixels
@@ -569,7 +574,6 @@ sub check_date {
 
 
         $lday  = $tday - 10;
-#        $lday = $tday - 15;
         $lmon  = $tmon;
         $lyear = $tyear;
 
@@ -626,6 +630,7 @@ sub check_date {
                                 push(@end_date, '28');
                         }
                         push(@start_date, $lday);
+
                 }elsif($tmon == 1) {
                         $lday  = 31 + $lday;
                         $lmon  = 12;
@@ -772,27 +777,6 @@ sub change_date_format {
 	}
 }
 
-############################################
-### rad_b_rm_dupl: rm depl from rad data  ##
-############################################
-
-sub rad_b_rm_dupl {
-	@save     = sort{$a<=>$b} @temp;
-	@new_save = shift(@save);
-	$cnt      = 1;
-
-	OUTER:
-	foreach $ent (@save){
-		foreach $comp (@new_save){
-			if($ent == $comp){
-				next OUTER;
-			}
-		}
-		push(@new_save,$ent);
-		$cnt++;
-	}
-}
-
 #############################################################
 ### month_dig_lett: change month name from digit to letter ##
 #############################################################
@@ -839,7 +823,7 @@ sub plot_ccd7 {
 	open(FH,'./zhtml_list');
 	while(<FH>){
 		chomp $_;
-		system("cat $_/$dir/ccd7 >> comb_data");
+		system("cat $_ >> comb_data");
 	}
 	close(FH);
 	system("rm zhtml_list");
@@ -884,6 +868,7 @@ sub plot_ccd7 {
 	$output_file = 'acis_ccd7_dose_plot.gif';
 	$ccd_name = 'ccd7';
 	plot_fig_ccd7();
+	pgclos();
 
 	system("echo ''|gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $bin_dir/pnmflip -r270 |$bin_dir/ppmtogif > $web_dir/$output_file");
 
@@ -922,14 +907,14 @@ sub plot_comb_5_7 {
 	pgslw(4);
 	
 	$pnlcnt = 0;
-	open(FH,"./$dir/ccd5");
+	open(FH, "$dir/ccd5");
 	@time    = ();
 	@y_val   = ();
 	$count   = 0;
 
 	while(<FH>) {
         	chomp $_;
-        	@data = split(/\t/, $_);
+        	@data = split(/\s/, $_);
 		if($data[1] > 0){
         		push(@time,  $data[0]);
         		push(@y_val, $data[1]/300.0);
@@ -948,7 +933,7 @@ sub plot_comb_5_7 {
 	pgsch(2);
 	pgslw(4);
 
-	open(FH,"./$dir/ccd6");
+	open(FH,"$dir/ccd6");
 	@time = ();
 	@y_val = ();
 	$count = 0;
@@ -969,7 +954,7 @@ sub plot_comb_5_7 {
 	
 	pgsch(2);
 	pgslw(4);
-	open(FH, "./$dir/ccd7");
+	open(FH, "$dir/ccd7");
 	@time  = ();
 	@y_val = ();
 	$count = 0;
@@ -990,7 +975,7 @@ sub plot_comb_5_7 {
 	pgclos;
 	
 	system("echo ''|gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $bin_dir/pnmflip -r270 |$bin_dir/ppmtogif > $dir/acis_dose_ccd_5_7.gif");
-	system("rm pgplot.ps");
+###	system("rm pgplot.ps");
 	
 }
 
@@ -1019,7 +1004,7 @@ sub plot_fig2 {
         }
         $xd   = $xmax - $xmin;
         $xpos = $xmin + 0.05*$xd;
-        $ypos = 1.05*$ymax;
+        $ypos = 1.05 * $ymax;
         pgtext($xpos,$ypos,"$ccd_name");
 
         if($pnlcnt == 0){
@@ -1054,12 +1039,12 @@ sub plot_fig2 {
                 }
         }
         pgsci(2);
-        $diff = $xmax-$xmin;
+        $diff = $xmax - $xmin;
         $x_e  = $xmin + $diff/10;
-        $diff = $ymax-$ymin;
-        $y_s  = $ymax + 0.05*$diff;
-        $y_e  = $ymax + 0.1*$diff;
-        pgrect($xmin,$x_e,$y_s,$y_e);
+        $diff = $ymax - $ymin;
+        $y_s  = $ymax + 0.05 * $diff;
+        $y_e  = $ymax + 0.1  * $diff;
+        pgrect($xmin, $x_e, $y_s, $y_e);
         pgsci(1);
 }
 
