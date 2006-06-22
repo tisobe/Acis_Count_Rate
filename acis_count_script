@@ -1,3 +1,5 @@
+source /home/mta/.ascrc
+
 rm -rf param
 mkdir param
 
@@ -6,14 +8,14 @@ source /home/mta/bin/reset_param
 setenv PFILES "${PDIRS}:${SYSPFILES}" 
 set path = (/home/ascds/DS.release/bin/  $path)
 
-perl  /data/mta4/MTA/bin/acis_dose_radiation_data.perl
+perl  /data/mta4/MTA/bin/acis_count_radiation_data.perl
 
-perl /data/mta4/MTA/bin/acis_dose_plot.perl
+perl /data/mta4/MTA/bin/acis_count_plot.perl
 
-perl /data/mta4/MTA/bin/acis_dose_ephin_plot.perl
+perl /data/mta4/MTA/bin/acis_count_ephin_plot.perl
 
-perl /data/mta4/MTA/bin/acis_dose_month_avg.perl
+perl /data/mta4/MTA/bin/acis_count_month_avg.perl
 
-perl /data/mta4/MTA/bin/acis_dose_long_term_plot.perl
+perl /data/mta4/MTA/bin/acis_count_long_term_plot.perl
 
-perl /data/mta4/MTA/bin/acis_dose_print_html.perl
+perl /data/mta4/MTA/bin/acis_count_print_html.perl
