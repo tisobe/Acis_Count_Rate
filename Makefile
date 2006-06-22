@@ -5,7 +5,7 @@ TASK = ACIS_Count_Rate
 
 include /data/mta4/MTA/include/Makefile.MTA
 
-BIN  = acis_dose_ephin_plot.perl acis_dose_long_term_plot.perl acis_dose_month_avg.perl  acis_dose_plot.perl acis_dose_print_html.perl acis_dose_radiation_data.perl acis_dose_script acis_dose_wrap_script
+BIN  = acis_count_ephin_plot.perl acis_count_long_term_plot.perl acis_count_month_avg.perl  acis_count_plot.perl acis_count_print_html.perl acis_count_radiation_data.perl acis_count_script acis_count_wrap_script
 
 DOC  = README
 

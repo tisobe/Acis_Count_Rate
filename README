@@ -20,11 +20,11 @@ $mon_name = $web_dir/SEP2005 etc
 Running All ACIS Count Rate Scripts
 ####################################
 
-acis_dose_wrap_script
+acis_count_wrap_script
 ---------------------
 A wrap script to run acis_dose_script
 
-acis_dose_script
+acis_count_script
 ----------------
 A script to  set an environment, and run all perl scripts
 
@@ -33,7 +33,7 @@ A script to  set an environment, and run all perl scripts
 Extract Radiation Zone Information
 ##################################
 
-acis_dose_radiation_data.perl
+acis_count_radiation_data.perl
 -----------------------------
 This script extracts radiation zone start and end time.
 
@@ -51,7 +51,7 @@ Output:
 Extract ACIS Dose Information
 ##############################
 
-acis_dose_plot.perl
+acis_count_plot.perl
 -------------------
 This script creates acis count rate plots.
 
@@ -81,7 +81,7 @@ Special Setting:
 Extract EPHIN Information
 ##########################
 
-acis_dose_ephin_plot.perl
+acis_count_ephin_plot.perl
 -------------------------
 This script extracts and plots ephin data.
 
@@ -109,7 +109,7 @@ Special Setting:
 Plot Long Term Trends
 #####################
 
-acis_dose_long_term_plot.perl
+acis_count_long_term_plot.perl
 -----------------------------
 This script plots count reates of s5, s6, and s7 for the entire period.
 
@@ -125,7 +125,7 @@ Output:
 Plot Monthly Average Dose Plots
 ###############################
 
-acis_dose_month_avg.perl
+acis_count_month_avg.perl
 ------------------------
 This scripts creates monthly averaged plots.
 
@@ -143,7 +143,7 @@ Output:
 Creating Web Pages
 ##################
 
-acis_dose_print_html.perl
+acis_count_print_html.perl
 -------------------------
 This script creates and updates html pages for count rate plots.
 
