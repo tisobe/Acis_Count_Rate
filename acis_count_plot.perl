@@ -10,7 +10,7 @@ use CFITSIO qw( :shortnames );
 #											#
 #	Author: Takashi Isobe (tisobe@cfa.havard.edu)					#
 #											#
-#	Last Update: Jun 20, 2006							#
+#	Last Update: Jul 06, 2006							#
 #											#
 #########################################################################################
 
@@ -24,8 +24,6 @@ $data_dir      = '/data/mta4/MTA/data/';
 $web_dir       = '/data/mta/www/mta_dose_count/';
 $house_keeping = "/data/mta_www/mta_dose_count/house_keeping/";
 
-$web_dir       = '/data/mta/www/mta_dose_count_test/';
-$house_keeping = "/data/mta_www/mta_dose_count_test/house_keeping/";
 ######################################################
 
 #

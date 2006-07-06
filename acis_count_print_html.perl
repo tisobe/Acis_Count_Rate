@@ -6,7 +6,7 @@
 #									#
 #	author:	Isobe Takashi (tisobe@cfa.harvard.edu)			#
 #									#
-#	05/14/06: last update   					#	
+#	last update: Jul 06, 2006   					#	
 #									#
 #########################################################################
 
@@ -20,8 +20,6 @@ $data_dir      = '/data/mta4/MTA/data/';
 $web_dir       = '/data/mta/www/mta_dose_count/';
 $hosue_keeping = "/data/mta_www/mta_dose_count/house_keeping/";
 
-$web_dir       = '/data/mta/www/mta_dose_count_test/';
-$hosue_keeping = "/data/mta_www/mta_dose_count_test/house_keeping/";
 ######################################################
 
 #
