@@ -9,7 +9,7 @@ use PGPLOT;
 #											#
 #	Author: Takashi Isobe (tisobe@cfa.harvard.edu)					#
 #											#
-#	Last Update: Jul 06, 2006  							#
+#	Last Update: Jul 07, 2009  							#
 #											#
 #########################################################################################
 
@@ -168,7 +168,7 @@ pgclos;
 
 $output = "$web_dir/".'long_term_plot.gif';
 
-system("echo ''|gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $bin_dir/pnmflip -r270 |$bin_dir/ppmtogif > $output");
+system("echo ''|/opt/local/bin/gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $bin_dir/pnmflip -r270 |$bin_dir/ppmtogif > $output");
 
 system("rm pgplot.ps");
 

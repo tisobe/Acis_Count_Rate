@@ -11,7 +11,7 @@ use CFITSIO qw( :shortnames );
 #                                                                                       #
 #	author: t. isobe (tisobe@cfa.harvard.edu)					#
 #											#
-#	Last Update: Jul 06, 2006							#
+#	Last Update: Jul 15, 2009							#
 #                                                                                       #
 #########################################################################################
 
@@ -300,7 +300,7 @@ plot_fig();
 	
 pgclos;
 	
-system("echo ''|gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $bin_dir/pnmflip -r270 |$bin_dir/ppmtogif > $mon_name/ephin_rate.gif");
+system("echo ''|/opt/local/bin/gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $bin_dir/pnmflip -r270 |$bin_dir/ppmtogif > $mon_name/ephin_rate.gif");
 
 system("rm pgplot.ps");
 

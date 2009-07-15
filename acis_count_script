@@ -5,8 +5,9 @@ mkdir param
 
 source /home/mta/bin/reset_param
 
-setenv PFILES "${PDIRS}:${SYSPFILES}" 
+setenv PFILES "${PDIRS}" 
 set path = (/home/ascds/DS.release/bin/  $path)
+set path = (/home/ascds/DS.release/ots/bin/ $path)
 
 /opt/local/bin/perl  /data/mta4/MTA/bin/acis_count_radiation_data.perl
 

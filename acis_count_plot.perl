@@ -10,7 +10,7 @@ use CFITSIO qw( :shortnames );
 #											#
 #	Author: Takashi Isobe (tisobe@cfa.havard.edu)					#
 #											#
-#	Last Update: Jul 06, 2006							#
+#	Last Update: Jul 15, 2009							#
 #											#
 #########################################################################################
 
@@ -343,7 +343,7 @@ for($i = 0; $i < 10; $i++) {
 	plot_fig();
 	pgclos;
 
-	system("echo ''|gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $bin_dir/pnmflip -r270 |$bin_dir/ppmtogif > $mon_name/$output_file");
+	system("echo ''|/opt/local/bin/gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $bin_dir/pnmflip -r270 |$bin_dir/ppmtogif > $mon_name/$output_file");
 	system("rm pgplot.ps");
 
 }
@@ -868,7 +868,7 @@ sub plot_ccd7 {
 	plot_fig_ccd7();
 	pgclos();
 
-	system("echo ''|gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $bin_dir/pnmflip -r270 |$bin_dir/ppmtogif > $web_dir/$output_file");
+	system("echo ''|/opt/local/bin/gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $bin_dir/pnmflip -r270 |$bin_dir/ppmtogif > $web_dir/$output_file");
 
 	system("rm pgplot.ps");
 }
@@ -972,7 +972,7 @@ sub plot_comb_5_7 {
 
 	pgclos;
 	
-	system("echo ''|gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $bin_dir/pnmflip -r270 |$bin_dir/ppmtogif > $dir/acis_dose_ccd_5_7.gif");
+	system("echo ''|/opt/local/bin/gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $bin_dir/pnmflip -r270 |$bin_dir/ppmtogif > $dir/acis_dose_ccd_5_7.gif");
 ###	system("rm pgplot.ps");
 	
 }
