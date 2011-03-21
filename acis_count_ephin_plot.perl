@@ -11,7 +11,7 @@ use CFITSIO qw( :shortnames );
 #                                                                                       #
 #	author: t. isobe (tisobe@cfa.harvard.edu)					#
 #											#
-#	Last Update: Jul 15, 2009							#
+#	Last Update: Mar 15, 2011							#
 #                                                                                       #
 #########################################################################################
 
@@ -20,10 +20,18 @@ use CFITSIO qw( :shortnames );
 #----- setting directories
 #
 
-$bin_dir       = '/data/mta4/MTA/bin/';
-$data_dir      = '/data/mta4/MTA/data/';
-$web_dir       = '/data/mta/www/mta_dose_count/';
-$house_keeping = "/data/mta_www/mta_dose_count/house_keeping/";
+open(FH, '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list');
+@atemp = ();
+while(<FH>){
+        chomp $_;
+        push(@atemp, $_);
+}
+close(FH);
+
+$bin_dir       = $atemp[0];
+$bdata_dir     = $atemp[1];
+$web_dir       = $atemp[2];
+$hosue_keeping = $atemp[3];
 
 ######################################################
 
@@ -212,7 +220,7 @@ rm_dupl();			#sort the data and remove duplication
 #
 
 @rad_list = ();
-open(FH, "$web_dir/rad_data");
+open(FH, "$hosue_keeping/rad_data");
 while(<FH>) {
        	chomp $_;
        	@rad       = split(/\t/,$_);

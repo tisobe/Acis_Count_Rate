@@ -1,5 +1,7 @@
 source /home/mta/.ascrc
 
+cd /data/mta/Script/ACIS/Count_rate/Exc
+
 rm -rf param
 mkdir param
 

@@ -7,7 +7,7 @@ use PGPLOT;
 #											#
 #	author: t. isobe (tisobe@cfa.harvard.edu)					#
 #											#
-#	last update: Jul 15, 2009							#
+#	last update: Mar 15, 2011							#
 #											#
 #########################################################################################
 
@@ -16,10 +16,18 @@ use PGPLOT;
 #----- setting directories
 #
 
-$bin_dir       = '/data/mta4/MTA/bin/';
-$data_dir      = '/data/mta4/MTA/data/';
-$web_dir       = '/data/mta/www/mta_dose_count/';
-$hosue_keeping = "/data/mta_www/mta_dose_count/house_keeping/";
+open(FH, '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list');
+@atemp = ();
+while(<FH>){
+        chomp $_;
+        push(@atemp, $_);
+}
+close(FH);
+
+$bin_dir       = $atemp[0];
+$bdata_dir     = $atemp[1];
+$web_dir       = $atemp[2];
+$hosue_keeping = $atemp[3];
 
 ######################################################
 
@@ -31,7 +39,7 @@ $hosue_keeping = "/data/mta_www/mta_dose_count/house_keeping/";
 
 $uyear += 1900;
 $umon++;
-open(OUT,">$web_dir/month_avg_data");
+open(OUT,">$hosue_keeping/month_avg_data");
 
 OUTER:
 for($year = 2000; $year <= $uyear; $year++){
@@ -87,7 +95,7 @@ for($year = 2000; $year <= $uyear; $year++){
 }
 close(OUT);
 
-open(FH, "$web_dir/month_avg_data");
+open(FH, "$hosue_keeping/month_avg_data");
 
 #
 #---initialize

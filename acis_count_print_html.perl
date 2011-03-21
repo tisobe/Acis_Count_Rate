@@ -6,7 +6,7 @@
 #									#
 #	author:	Isobe Takashi (tisobe@cfa.harvard.edu)			#
 #									#
-#	last update: Jul 06, 2006   					#	
+#	last update: Mar 21, 2011   					#	
 #									#
 #########################################################################
 
@@ -15,10 +15,18 @@
 #----- setting directories
 #
 
-$bin_dir       = '/data/mta4/MTA/bin/';
-$data_dir      = '/data/mta4/MTA/data/';
-$web_dir       = '/data/mta/www/mta_dose_count/';
-$hosue_keeping = "/data/mta_www/mta_dose_count/house_keeping/";
+open(FH, '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list');
+@atemp = ();
+while(<FH>){
+        chomp $_;
+        push(@atemp, $_);
+}
+close(FH);
+
+$bin_dir       = $atemp[0];
+$bdata_dir     = $atemp[1];
+$web_dir       = $atemp[2];
+$hosue_keeping = $atemp[3];
 
 ######################################################
 
@@ -49,6 +57,9 @@ print_main_html();
 print_month_html();
 
 print_gif_html();
+
+
+system("chgrp mtagroup $web_dir/* $web_dir/*/*");
 
 
 #####################################################################

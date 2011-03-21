@@ -7,7 +7,7 @@ use PGPLOT;
 #											#
 #	author: t. isobe (tisobe@cfa.harvard.edu)					#
 #											#
-#	Last Update: Jul 06, 2006							#
+#	Last Update: Mar 15, 2011							#
 #											#
 #########################################################################################
 
@@ -16,10 +16,18 @@ use PGPLOT;
 #----- setting directories
 #
 
-$bin_dir       = '/data/mta4/MTA/bin/';
-$data_dir      = '/data/mta4/MTA/data/';
-$web_dir       = '/data/mta/www/mta_dose_count/';
-$hosue_keeping = "/data/mta_www/mta_dose_count/house_keeping/";
+open(FH, '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list');
+@atemp = ();
+while(<FH>){
+        chomp $_;
+        push(@atemp, $_);
+}
+close(FH);
+
+$bin_dir       = $atemp[0];
+$bdata_dir     = $atemp[1];
+$web_dir       = $atemp[2];
+$hosue_keeping = $atemp[3];
 
 ######################################################
 
@@ -169,7 +177,7 @@ sub get_rad_data {
         get_rad();
 
         @rad_data = ();
-        open(FH, "$web_dir/rad_data");
+        open(FH, "$hosue_keeping/rad_data");
 
         while(<FH>) {
                 chomp $_;
@@ -183,7 +191,7 @@ sub get_rad_data {
 #
         rad_b_rm_dupl();
 
-        open(OUT, ">$web_dir/rad_data");
+        open(OUT, ">$hosue_keeping/rad_data");
         foreach $ent (@new_save){
                 print OUT "$ent\n";
         }
@@ -349,7 +357,7 @@ sub get_rad {
 		$radzone_exit[$entry_cnt-1] = $radzone_entry[$entry_cnt-1];
 	}
 
-	open(OUT,">>$web_dir/rad_data");
+	open(OUT,">>$hosue_keeping/rad_data");
 	for($i = 0;$i < $entry_cnt; $i++) {
 		print OUT "$radzone_entry[$i]\t$radzone_exit[$i]\n";
 	}
