@@ -10,7 +10,7 @@ Directory Settings
 $bin_dir       = '/data/mta4/MTA/bin/';
 $data_dir      = '/data/mta4/MTA/data/';
 $web_dir       = '/data/mta/www/mta_dose_count/';
-$hosue_keeping = "/data/mta_www/mta_dose_count/house_keeping/";
+$hosue_keeping = "/data/mta/Script/ACIS/Count_rate/house_keeping/";
 
 Notation (example):
 

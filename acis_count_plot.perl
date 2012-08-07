@@ -1,8 +1,8 @@
 #!/proj/axaf/bin/perl
 use PGPLOT;
-use lib '/home/rpete/local/perlmods/sun4-solaris-thread';
+#use lib '/home/rpete/local/perlmods/sun4-solaris-thread';
 #use lib '/opt/local/lib/perl5/5.00501/sun4-solaris-thread';			#on colossus
-use CFITSIO qw( :shortnames );
+#use CFITSIO qw( :shortnames );
 
 #########################################################################################
 #											#
@@ -10,7 +10,7 @@ use CFITSIO qw( :shortnames );
 #											#
 #	Author: Takashi Isobe (tisobe@cfa.havard.edu)					#
 #											#
-#	Last Update: Mar 21, 2011							#
+#	Last Update: Aug 01, 2012							#
 #											#
 #########################################################################################
 
@@ -18,20 +18,14 @@ use CFITSIO qw( :shortnames );
 #
 #----- setting directories
 #
-
-open(FH, '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list');
-@atemp = ();
+$dir_list = '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list';
+open(FH, $dir_list);
 while(<FH>){
-        chomp $_;
-        push(@atemp, $_);
+    chomp $_;
+    @atemp = split(/\s+/, $_);
+    ${$atemp[0]} = $atemp[1];
 }
 close(FH);
-
-$bin_dir       = $atemp[0];
-$bdata_dir     = $atemp[1];
-$web_dir       = $atemp[2];
-$house_keeping = $atemp[3];
-
 ######################################################
 
 #
@@ -140,152 +134,120 @@ foreach $file (@input_data_list) {
 #
 	
 #
-#---- here we are using fitsio routines
-#
-
-	$read_file = "$file".'[1]';
-	$iomode = 0;
-	$status = 0;
-
-	ffopen($fptr, $read_file, $iomode, $status); 	# open file, fptr: pointer
-	ffgnrw($fptr, $nrow, $status);            	# find # of rows  ($nrow) in the table
-
-	$incl       = 0.3 * $nrow;
-	$incl       = int ($incl);
-	$add_time   = 0;
-	$start_save = 0;
-
-#
-#--- handle data table 1/3 at a time
-#
-
-	OUTER2:
-	for($irow = 0; $irow < 3; $irow++){
-		$firstrow  = $irow*$incl + 1;
-		$nelements = $incl;
-
-#
-#---at the last round include all the data till the end
-#
-
-		if($irow == 2){
-			$nelements = $nrow - 2.0 * $incl;
-		}
-#
-#---  reading time and ccd_id; data are in @time_data and @ccd_data
-#
-		read_time_ccd();
-				
-#
 #--- initialize
 #
-		if($irow == 0){
-			$t_chk     = 0;	
-			$bin_cnt   = 0;
-			@time_list = ();
-		}
-		
-		OUTER:
-		for($i = 0; $i < $nelements; $i++) {
-			$time   = $time_data[$i];
-			$ccd_id = $ccd_data[$i];
+	$t_chk     = 0;	
+	$bin_cnt   = 0;
+	@time_list = ();
+	
+    $line = "$file"."[cols time, ccd_id]";
+    system("dmlist \"$line\" opt=data > ztemp");
+    open(FH, "./ztemp");
+	OUTER:
+	while(<FH>){
+           chomp $_;
+           @atemp = split(/\s+/, $_);
+           if($atemp[0] =~ /\d/){
+		        $time   = $atemp[1];
+		        $ccd_id = $atemp[2];
+           }elsif($atemp[1] =~ /\d/){
+		        $time   = $atemp[2];
+		        $ccd_id = $atemp[3];
+           }else{
+               next OUTER;
+           }
 
-			if($time < 1){
-				next OUTER;
-			}
+		if($time < 1){
+			next OUTER;
+		}
 #
 #---- initialization at the begining of data reading (every 300 sec)
 #			
-			if($t_chk == 0) {
-				$t_chk = 1;	
-				$start = $time;
-				$prev  = $time;
-				$sum   = 0;
-				$bin_cnt++;
+		if($t_chk == 0) {
+			$t_chk = 1;	
+			$start = $time;
+			$prev  = $time;
+			$sum   = 0;
+			$bin_cnt++;
 
-				for($j = 0; $j < 10; $j++) {
-					${cnt_ccd.$j.$bin_cnt} = 0;	
-				}
+			for($j = 0; $j < 10; $j++) {
+				${cnt_ccd.$j.$bin_cnt} = 0;	
+			}
 
-				push(@time_list, $start);
+			push(@time_list, $start);
 #
 #--- check wether time inteval reached 300 sec
 #
-			}else{		
-				$sum += $time - $prev;
-				$diff = $time - $start;
-				$prev = $time;
+		}else{		
+			$sum += $time - $prev;
+			$diff = $time - $start;
+			$prev = $time;
 
-				if($diff >= 300) {
-					$t_chk = 0;
-				}
+			if($diff >= 300) {
+				$t_chk = 0;
 			}
+		}
 #
 #---- accumurate counts for each CCD
 #				
-			${cnt_ccd.$ccd_id.$bin_cnt}++;
-		}
+		${cnt_ccd.$ccd_id.$bin_cnt}++;
+	}
 				
-				
-		for($kval = 0; $kval < 10; $kval++){
-			@{sv_ccd.$kval}= ();
+			
+	for($kval = 0; $kval < 10; $kval++){
+		@{sv_ccd.$kval}= ();
 #
 #---- normalized if the last bin is smaller than a specified size
 #
-			if($diff < 300) {
+		if($diff < 300) {
 
-				if($irow == 2){
-					$ratio = $diff/300;
-					${cnt_ccd.$kval.$bin_cnt} 
-						= int (${cnt_ccd.$kval.$bin_cnt}/$ratio);
-				}else{
-					next OUTER2;
-				}
+			if($irow == 2){
+				$ratio = $diff/300;
+				${cnt_ccd.$kval.$bin_cnt} = int (${cnt_ccd.$kval.$bin_cnt}/$ratio);
 			}
 		}
-				
-		for($ival = 1; $ival <= $bin_cnt; $ival++) {
+	}
+			
+	for($ival = 1; $ival <= $bin_cnt; $ival++) {
 
-			for($kval = 0; $kval < 10; $kval++){
-				push(@{sv_ccd.$kval},${cnt_ccd.$kval.$ival});
-			}
+		for($kval = 0; $kval < 10; $kval++){
+			push(@{sv_ccd.$kval},${cnt_ccd.$kval.$ival});
 		}
+	}
 
 #
 #--- changing time to DOM
 #						
 
-		$start = $time_list[0];
-		@time  = ();
-		foreach $time_t (@time_list){
-			$ptime = $dom + ($add_time + $time_t - $start)/86400;
-			push(@time, $ptime);
-		}
+	$start = $time_list[0];
+	@time  = ();
+	foreach $time_t (@time_list){
+		$ptime = $dom + ($add_time + $time_t - $start)/86400;
+		push(@time, $ptime);
+	}
 
 #
 #--- set time so that the next 1/3 starts from a correct time
 #
 
-		$add_time = $add_time + $time_list[$bin_cnt-1] - $start;
+	$add_time = $add_time + $time_list[$bin_cnt-1] - $start;
 	
 #
 #---- save (print out) data so far collected before goint to the next 1/3 of data set
 #
 
-		for($kval = 0; $kval< 10; $kval++) {
-			$ccd_name = 'ccd'."$kval";
-			@y_val    = @{sv_ccd.$kval};
+	for($kval = 0; $kval< 10; $kval++) {
+		$ccd_name = 'ccd'."$kval";
+		@y_val    = @{sv_ccd.$kval};
 
-			open(OUT,">>$mon_name/$ccd_name");
+		open(OUT,">>$mon_name/$ccd_name");
 
-			for($ival = 0; $ival < $bin_cnt; $ival++){
-				print OUT  "$time[$ival]\t$y_val[$ival]\n";
-			}
-			close(OUT);
+		for($ival = 0; $ival < $bin_cnt; $ival++){
+			print OUT  "$time[$ival]\t$y_val[$ival]\n";
 		}
+		close(OUT);
+	}
 			
-	}					#---- 1/3 of filts files loop
-	ffclos($fptr, $status);			#---- closing cfitsio file
 }						#---- fits file group list loop end
 
 #
@@ -303,7 +265,7 @@ if($new_test > 0){
 #
 
 @rad_list = ();
-open(FH, "$hosue_keeping/rad_data");	
+open(FH, "$house_keeping/rad_data");	
 while(<FH>) {
        	chomp $_;
        	@rad       = split(/\t/,$_);
@@ -351,7 +313,7 @@ for($i = 0; $i < 10; $i++) {
 	plot_fig();
 	pgclos;
 
-	system("echo ''|/opt/local/bin/gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $bin_dir/pnmflip -r270 |$bin_dir/ppmtogif > $mon_name/$output_file");
+	system("echo ''|$op_dir/gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $op_dir/pnmflip -r270 |$op_dir/ppmtogif > $mon_name/$output_file");
 	system("rm pgplot.ps");
 
 }
@@ -876,7 +838,7 @@ sub plot_ccd7 {
 	plot_fig_ccd7();
 	pgclos();
 
-	system("echo ''|/opt/local/bin/gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $bin_dir/pnmflip -r270 |$bin_dir/ppmtogif > $web_dir/$output_file");
+	system("echo ''|$op_dir/gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $op_dir/pnmflip -r270 |$op_dir/ppmtogif > $web_dir/$output_file");
 
 	system("rm pgplot.ps");
 }
@@ -980,7 +942,7 @@ sub plot_comb_5_7 {
 
 	pgclos;
 	
-	system("echo ''|/opt/local/bin/gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $bin_dir/pnmflip -r270 |$bin_dir/ppmtogif > $dir/acis_dose_ccd_5_7.gif");
+	system("echo ''|$op_dir/gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $op_dir/pnmflip -r270 |$op_dir/ppmtogif > $dir/acis_dose_ccd_5_7.gif");
 ###	system("rm pgplot.ps");
 	
 }

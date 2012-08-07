@@ -9,7 +9,7 @@ use PGPLOT;
 #											#
 #	Author: Takashi Isobe (tisobe@cfa.harvard.edu)					#
 #											#
-#	Last Update: Mar 15, 2011  							#
+#	Last Update: Aug 01, 2011  							#
 #											#
 #########################################################################################
 
@@ -17,20 +17,14 @@ use PGPLOT;
 #
 #----- setting directories
 #
-
-open(FH, '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list');
-@atemp = ();
+$dir_list = '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list';
+open(FH, $dir_list);
 while(<FH>){
-        chomp $_;
-        push(@atemp, $_);
+    chomp $_;
+    @atemp = split(/\s+/, $_);
+    ${$atemp[0]} = $atemp[1];
 }
 close(FH);
-
-$bin_dir       = $atemp[0];
-$bdata_dir     = $atemp[1];
-$web_dir       = $atemp[2];
-$hosue_keeping = $atemp[3];
-
 ######################################################
 	
 $start_date = '163';			# start from Jan 1, 2000
@@ -176,7 +170,7 @@ pgclos;
 
 $output = "$web_dir/".'long_term_plot.gif';
 
-system("echo ''|/opt/local/bin/gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $bin_dir/pnmflip -r270 |$bin_dir/ppmtogif > $output");
+system("echo ''|$op_dir/gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $op_dir/pnmflip -r270 |$op_dir/ppmtogif > $output");
 
 system("rm pgplot.ps");
 

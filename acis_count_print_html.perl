@@ -6,7 +6,7 @@
 #									#
 #	author:	Isobe Takashi (tisobe@cfa.harvard.edu)			#
 #									#
-#	last update: Mar 21, 2011   					#	
+#	last update: Aug 01, 2012   					#	
 #									#
 #########################################################################
 
@@ -14,19 +14,14 @@
 #
 #----- setting directories
 #
-
-open(FH, '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list');
-@atemp = ();
+$dir_list = '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list';
+open(FH, $dir_list);
 while(<FH>){
-        chomp $_;
-        push(@atemp, $_);
+    chomp $_;
+    @atemp = split(/\s+/, $_);
+    ${$atemp[0]} = $atemp[1];
 }
 close(FH);
-
-$bin_dir       = $atemp[0];
-$bdata_dir     = $atemp[1];
-$web_dir       = $atemp[2];
-$hosue_keeping = $atemp[3];
 
 ######################################################
 

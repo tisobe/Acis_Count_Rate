@@ -1,24 +1,25 @@
-source /home/mta/.ascrc
+setenv HEADAS /soft/lheasoft/headas/x86_64-pc-linux;
+source $HEADAS/headas-init.csh
 
-cd /data/mta/Script/ACIS/Count_rate/Exc
+source /home/mta/.ascrc
 
 rm -rf param
 mkdir param
 
 source /home/mta/bin/reset_param
 
-setenv PFILES "${PDIRS}" 
+setenv PFILES "${PDIRS}"
 set path = (/home/ascds/DS.release/bin/  $path)
 set path = (/home/ascds/DS.release/ots/bin/ $path)
 
-/opt/local/bin/perl  /data/mta4/MTA/bin/acis_count_radiation_data.perl
+/usr/bin/perl  /data/mta/Script/ACIS/Count_rate/Acis_Count_Rate/acis_count_radiation_data.perl
 
-/opt/local/bin/perl /data/mta4/MTA/bin/acis_count_plot.perl
+/usr/bin/perl /data/mta/Script/ACIS/Count_rate/Acis_Count_Rate/acis_count_plot.perl
 
-/opt/local/bin/perl /data/mta4/MTA/bin/acis_count_ephin_plot.perl
+/usr/bin/perl /data/mta/Script/ACIS/Count_rate/Acis_Count_Rate/acis_count_ephin_plot.perl
 
-/opt/local/bin/perl /data/mta4/MTA/bin/acis_count_month_avg.perl
+/usr/bin/perl /data/mta/Script/ACIS/Count_rate/Acis_Count_Rate/acis_count_month_avg.perl
 
-/opt/local/bin/perl /data/mta4/MTA/bin/acis_count_long_term_plot.perl
+/usr/bin/perl /data/mta/Script/ACIS/Count_rate/Acis_Count_Rate/acis_count_long_term_plot.perl
 
-/opt/local/bin/perl /data/mta4/MTA/bin/acis_count_print_html.perl
+/usr/bin/perl /data/mta/Script/ACIS/Count_rate/Acis_Count_Rate/acis_count_print_html.perl

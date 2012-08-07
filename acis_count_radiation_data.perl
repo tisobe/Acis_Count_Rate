@@ -7,7 +7,7 @@ use PGPLOT;
 #											#
 #	author: t. isobe (tisobe@cfa.harvard.edu)					#
 #											#
-#	Last Update: Mar 15, 2011							#
+#	Last Update: Aug 01, 2012							#
 #											#
 #########################################################################################
 
@@ -15,19 +15,14 @@ use PGPLOT;
 #
 #----- setting directories
 #
-
-open(FH, '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list');
-@atemp = ();
+$dir_list = '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list';
+open(FH, $dir_list);
 while(<FH>){
-        chomp $_;
-        push(@atemp, $_);
+    chomp $_;
+        @atemp = split(/\s+/, $_);
+    ${$atemp[0]} = $atemp[1];
 }
 close(FH);
-
-$bin_dir       = $atemp[0];
-$bdata_dir     = $atemp[1];
-$web_dir       = $atemp[2];
-$hosue_keeping = $atemp[3];
 
 ######################################################
 
@@ -177,7 +172,7 @@ sub get_rad_data {
         get_rad();
 
         @rad_data = ();
-        open(FH, "$hosue_keeping/rad_data");
+        open(FH, "$house_keeping/rad_data");
 
         while(<FH>) {
                 chomp $_;
@@ -191,7 +186,7 @@ sub get_rad_data {
 #
         rad_b_rm_dupl();
 
-        open(OUT, ">$hosue_keeping/rad_data");
+        open(OUT, ">$house_keeping/rad_data");
         foreach $ent (@new_save){
                 print OUT "$ent\n";
         }
@@ -357,7 +352,7 @@ sub get_rad {
 		$radzone_exit[$entry_cnt-1] = $radzone_entry[$entry_cnt-1];
 	}
 
-	open(OUT,">>$hosue_keeping/rad_data");
+	open(OUT,">>$house_keeping/rad_data");
 	for($i = 0;$i < $entry_cnt; $i++) {
 		print OUT "$radzone_entry[$i]\t$radzone_exit[$i]\n";
 	}

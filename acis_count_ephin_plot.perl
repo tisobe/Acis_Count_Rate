@@ -1,9 +1,5 @@
 #!/usr/bin/perl
-
 use PGPLOT;
-use lib '/home/rpete/local/perlmods/sun4-solaris-thread';
-#use lib '/opt/local/lib/perl5/5.00501/sun4-solaris-thread';			#on colossus
-use CFITSIO qw( :shortnames );
 
 #########################################################################################
 #                                                                                       #
@@ -11,7 +7,7 @@ use CFITSIO qw( :shortnames );
 #                                                                                       #
 #	author: t. isobe (tisobe@cfa.harvard.edu)					#
 #											#
-#	Last Update: Mar 15, 2011							#
+#	Last Update: aug 01, 2012							#
 #                                                                                       #
 #########################################################################################
 
@@ -19,19 +15,15 @@ use CFITSIO qw( :shortnames );
 #
 #----- setting directories
 #
-
-open(FH, '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list');
-@atemp = ();
+$dir_list = '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list';
+open(FH, $dir_list);
 while(<FH>){
-        chomp $_;
-        push(@atemp, $_);
-}
+    chomp $_;
+    @atemp = split(/\s+/, $_);
+    ${$atemp[0]} = $atemp[1];
+    }
 close(FH);
 
-$bin_dir       = $atemp[0];
-$bdata_dir     = $atemp[1];
-$web_dir       = $atemp[2];
-$hosue_keeping = $atemp[3];
 
 ######################################################
 
@@ -70,141 +62,122 @@ foreach $file (@input_data_list) {
         system("rm header");
 
 #
-#--- here we are using fitsio routines
+#---- read file
 #
-	
-	$read_file = "$file".'[1]';
-	$iomode = 0;
-	$status = 0;
+	$line = "$file"."[cols time,scp4,sce150,sce300,sce1300]";
+	system("dmlist \"$line\" opt=data >ztemp");
+	open(FH, "./ztemp");
+	@time_data  = ();
+	@p4_rate    = ();
+	@e150_rate  = ();
+	@e300_rate  = ();
+	@e1300_rate = ();
+	$ecnt       = 0;
+	FOUT:
+	while(<FH>){
+		chomp $_;
+		$string = $_;
+		$string =~ s/^\s+//;
+		@atemp  = split(/\s+/, $_);
+		if($atemp[1] !~ /\d/){
+			next FOUT;
+		}
+		push(@time_data,  $atemp[2]);
+		push(@p4_rate,    $atemp[3]);
+		push(@e150_rate,  $atemp[4]);
+		push(@e300_rate,  $atemp[5]);
+		push(@e1300_rate, $atemp[6]);
+		$ecnt++;
+	}
+	close(FH);
+	system("rm ./ztemp");
+		
 
-	ffopen($fptr, $read_file, $iomode, $status); 	# open file, fptr: pointer
-	ffgnrw($fptr, $nrow, $status);            	# get the table row number
-
-	$incl       = 0.3 * $nrow;
-	$incl       = int ($incl);
 	$add_time   = 0;
 	$start_save = 0;
-#
-#--- handle data table 1/3 at a time
-#
-	OUTER2:
-	for($irow = 0; $irow < 3; $irow++){
-		$firstrow  = $irow*$incl + 1;
-		$nelements = $incl;
-		if($irow == 2){
-			$nelements = $nrow - 2.0 * $incl;
-		}
-#
-#--- reading time and ephin rates (using fits tools)
-#
-
-		read_ephin_rate();
-
-		if($irow == 0){
-			$t_chk     = 0;
-			$bin_cnt   = 0;
-			@time_list = ();
+	$t_chk      = 0;
+	$bin_cnt    = 0;
+	@time_list  = ();
+		
+	OUTER:
+	for($i = 0; $i < $ecnt; $i++) {
+		$time = $time_data[$i];
+		if($time < 1){
+			next OUTER;
 		}
 		
-		OUTER:
-		for($i = 0; $i < $nelements; $i++) {
-			$time       = $time_data[$i];
-			$p4_data    = $p4_rate[$i];
-			$e150_data  = $e150_rate[$i];
-			$e300_data  = $e300_rate[$i];
-			$e1300_data = $e1300_rate[$i];
-			if($time < 1){
-				next OUTER;
+		if($t_chk == 0) {
+			$t_chk = 1;
+			$start = $time;
+			$prev  = $time;
+			$sum   = 0;
+			$bin_cnt++;
+			${cnt_p4.$bin_cnt}    = 0;
+			${cnt_e150.$bin_cnt}  = 0;
+			${cnt_e300.$bin_cnt}  = 0;
+			${cnt_e1300.$bin_cnt} = 0;
+			push(@time_list, $start);
+		}else{
+			$sum += $time - $prev;
+			$diff = $time - $start;
+			$prev = $time;
+			if($diff >= 300) {
+				$t_chk = 0;
 			}
-			
-			if($t_chk == 0) {
-				$t_chk = 1;
-				$start = $time;
-				$prev  = $time;
-				$sum   = 0;
-				$bin_cnt++;
-				${cnt_p4.$bin_cnt}    = 0;
-				${cnt_e150.$bin_cnt}  = 0;
-				${cnt_e300.$bin_cnt}  = 0;
-				${cnt_e1300.$bin_cnt} = 0;
-				push(@time_list, $start);
-			}else{
-				$sum += $time - $prev;
-				$diff = $time - $start;
-				$prev = $time;
-				if($diff >= 300) {
-					$t_chk = 0;
-				}
-			}
-			
-			${cnt_p4.$bin_cnt}    += $p4_data;
-			${cnt_e150.$bin_cnt}  += $e150_data;
-			${cnt_e300.$bin_cnt}  += $e300_data;
-			${cnt_e1300.$bin_cnt} += $e1300_data;
 		}
+		
+		${cnt_p4.$bin_cnt}    += $p4_rate[$i];
+		${cnt_e150.$bin_cnt}  += $e150_rate[$i];
+		${cnt_e300.$bin_cnt}  += $e300_rate[$i];
+		${cnt_e1300.$bin_cnt} += $e1300_rate[$i];
+	}
 				
 #	
 #--- normalized if the last bin is smaller than a specified size
 #
 			
-		if($diff < 300) {
-			if($irow == 2){
-				$ratio = $diff/300;
-				${cnt_p4.$bin_cnt}    = ${cnt_p4.$bin_cnt}   /$ratio;
-				${cnt_e150.$bin_cnt}  = ${cnt_e150.$bin_cnt} /$ratio;
-				${cnt_e300.$bin_cnt}  = ${cnt_e300.$bin_cnt} /$ratio;
-				${cnt_e1300.$bin_cnt} = ${cnt_e1300.$bin_cnt}/$ratio;
-			}else{
-				next OUTER2;
-			}
-		}
-				
-		@cnt_p4_save    = ();
-		@cnt_e150_save	= ();
-		@cnt_e300_save	= ();
-		@cnt_e1300_save	= ();
+	if($diff > 0 && $diff < 300) {
+		$ratio = $diff/300;
+		${cnt_p4.$bin_cnt}    = ${cnt_p4.$bin_cnt}   /$ratio;
+		${cnt_e150.$bin_cnt}  = ${cnt_e150.$bin_cnt} /$ratio;
+		${cnt_e300.$bin_cnt}  = ${cnt_e300.$bin_cnt} /$ratio;
+		${cnt_e1300.$bin_cnt} = ${cnt_e1300.$bin_cnt}/$ratio;
+	}
+			
+	@cnt_p4_save    = ();
+	@cnt_e150_save	= ();
+	@cnt_e300_save	= ();
+	@cnt_e1300_save	= ();
 
-		for($ival = 1; $ival <= $bin_cnt; $ival++) {
-			push(@cnt_p4_save,    ${cnt_p4.$ival});
-			push(@cnt_e150_save,  ${cnt_e150.$ival});
-			push(@cnt_e300_save,  ${cnt_e300.$ival});
-			push(@cnt_e1300_save, ${cnt_e1300.$ival});
-		}
-				
-		$start = $time_list[0];
+	for($ival = 1; $ival <= $bin_cnt; $ival++) {
+		push(@cnt_p4_save,    ${cnt_p4.$ival});
+		push(@cnt_e150_save,  ${cnt_e150.$ival});
+		push(@cnt_e300_save,  ${cnt_e300.$ival});
+		push(@cnt_e1300_save, ${cnt_e1300.$ival});
+	}
+			
+	$start = $time_list[0];
 #
 #--- changing time to DOM
 #
-		@time  = ();
-		foreach $time_t (@time_list){
-			$ptime = $dom + ($add_time + $time_t - $start)/86400;
-			push(@time, $ptime);
-		}
+	@time  = ();
+	foreach $time_t (@time_list){
+		$ptime = $dom + ($add_time + $time_t - $start)/86400;
+		push(@time, $ptime);
+	}
 
-		$add_time = $add_time+ $time_list[$bin_cnt-1] - $start;
+	$add_time = $add_time+ $time_list[$bin_cnt-1] - $start;
 
-#
-#--- so that the next 1/3 starts from a correct time
-#
-		
-		open(OUT,">>$mon_name/ephin_rate");
-		for($ival = 0; $ival < $bin_cnt; $ival++){
-			print OUT  "$time[$ival]\t";
-			print OUT  "$cnt_p4_save[$ival]\t";
-			print OUT  "$cnt_e150_save[$ival]\t";
-			print OUT  "$cnt_e300_save[$ival]\t";
-			print OUT  "$cnt_e1300_save[$ival]\n";
-		}
-		close(OUT);
-				
-	}		#1/3 of filts files loop
-#
-#--- closing cfitsio file
-#
-
-	ffclos($fptr, $status);
-
-}			# each fits file group loop
+	open(OUT,">>$mon_name/ephin_rate");
+	for($ival = 0; $ival < $bin_cnt; $ival++){
+		print OUT  "$time[$ival]\t";
+		print OUT  "$cnt_p4_save[$ival]\t";
+		print OUT  "$cnt_e150_save[$ival]\t";
+		print OUT  "$cnt_e300_save[$ival]\t";
+		print OUT  "$cnt_e1300_save[$ival]\n";
+	}
+	close(OUT);
+}								#------     fits file loop
 
 #
 #--- sort the data and remove duplication
@@ -220,7 +193,7 @@ rm_dupl();			#sort the data and remove duplication
 #
 
 @rad_list = ();
-open(FH, "$hosue_keeping/rad_data");
+open(FH, "$house_keeping/rad_data");
 while(<FH>) {
        	chomp $_;
        	@rad       = split(/\t/,$_);
@@ -308,7 +281,7 @@ plot_fig();
 	
 pgclos;
 	
-system("echo ''|/opt/local/bin/gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $bin_dir/pnmflip -r270 |$bin_dir/ppmtogif > $mon_name/ephin_rate.gif");
+system("echo ''|$op_dir/gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $op_dir/pnmflip -r270 |$op_dir/ppmtogif > $mon_name/ephin_rate.gif");
 
 system("rm pgplot.ps");
 
@@ -504,65 +477,6 @@ sub rm_dupl {
        	@new_data = ()
 }
 	
-####################################################
-###read_ephin_rate: readin ephin rates           ###
-####################################################
-
-sub read_ephin_rate {
-
-#
-#--- we assume that the following lines are already processed before this
-#--- sub is called
-#---        ffopen($fptr, $read_file, $iomode, $status);    # open file, fptr: pointer
-#---        ffgnrw($fptr, $nrow, $status);                  # get the table row number
-#--- and after finishing everything, you also need to call closing fits toot
-#---	    ffclos($fptr, $status);
-#
-
-
-        $datatype   = 82;                # data type
-        $firstelem  = 1;                 # first element in a vector
-        $nulval     = 0;                 # value to represent undefined pixels
-        @anynul     = 0;                 # TRUE(=1)if returned values are undefined
-        $casesen    = 0;                 # case insensitive
-
-        @time_data  = (0..$nelements);
-        @p4_data    = (0..$nelements);
-        @e150_data  = (0..$nelements);
-        @e300_data  = (0..$nelements);
-        @e1300_data = (0..$nelements);
-#
-#--- reading time column
-#
-        $colnum = 1;
-        ffgcv($fptr, $datatype, $colnum, $firstrow,
-                $firstelem, $nelements, $nulval, \@time_data, $anynul, $status);
-#
-#--- reading P4 rate column
-#
-        $colnum = 3; 
-        ffgcv($fptr, $datatype, $colnum, $firstrow,
-                $firstelem, $nelements, $nulval, \@p4_rate, $anynul, $status);
-#
-#--- reading E150 rate column
-#
-        $colnum = 7;
-        ffgcv($fptr, $datatype, $colnum, $firstrow,
-                $firstelem, $nelements, $nulval, \@e150_rate, $anynul, $status);
-#
-#--- reading #300 rate column
-#
-        $colnum = 8;
-        ffgcv($fptr, $datatype, $colnum, $firstrow,
-                $firstelem, $nelements, $nulval, \@e300_rate, $anynul, $status);
-#
-#--- reading E1300 rate column
-#
-        $colnum = 9;
-        ffgcv($fptr, $datatype, $colnum, $firstrow,
-                $firstelem, $nelements, $nulval, \@e1300_rate, $anynul, $status);
-}
-
 #######################################################################################
 ### check_date: check today's date and if there is no directory for the month, create #
 #######################################################################################
@@ -743,7 +657,9 @@ sub get_data_list {
                 if($ent eq $old_last){
                         last OUT;
                 }
-                push(@input_data_list, $ent);
+		if($ent =~ /fits/){
+                	push(@input_data_list, $ent);
+		}
         }
 
         system("mv $house_keeping/ephin_dir_list $house_keeping/ephin_old_dir_list");

@@ -7,7 +7,7 @@ use PGPLOT;
 #											#
 #	author: t. isobe (tisobe@cfa.harvard.edu)					#
 #											#
-#	last update: Mar 15, 2011							#
+#	last update: Aug 01, 2012							#
 #											#
 #########################################################################################
 
@@ -15,20 +15,14 @@ use PGPLOT;
 #
 #----- setting directories
 #
-
-open(FH, '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list');
-@atemp = ();
+$dir_list = '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list';
+open(FH, $dir_list);
 while(<FH>){
-        chomp $_;
-        push(@atemp, $_);
+    chomp $_;
+    @atemp = split(/\s+/, $_);
+    ${$atemp[0]} = $atemp[1];
 }
 close(FH);
-
-$bin_dir       = $atemp[0];
-$bdata_dir     = $atemp[1];
-$web_dir       = $atemp[2];
-$hosue_keeping = $atemp[3];
-
 ######################################################
 
 #
@@ -39,7 +33,7 @@ $hosue_keeping = $atemp[3];
 
 $uyear += 1900;
 $umon++;
-open(OUT,">$hosue_keeping/month_avg_data");
+open(OUT,">$house_keeping/month_avg_data");
 
 OUTER:
 for($year = 2000; $year <= $uyear; $year++){
@@ -95,7 +89,7 @@ for($year = 2000; $year <= $uyear; $year++){
 }
 close(OUT);
 
-open(FH, "$hosue_keeping/month_avg_data");
+open(FH, "$house_keeping/month_avg_data");
 
 #
 #---initialize
@@ -213,7 +207,7 @@ sub plot_img {
 
 	$name = "$web_dir/month_avg_img.gif";
 
-	system("echo ''|/opt/local/bin/gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $bin_dir/pnmflip -r270 |$bin_dir/ppmtogif > $name");
+	system("echo ''|$op_dir/gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $op_dir/pnmflip -r270 |$op_dir/ppmtogif > $name");
 	system("rm pgplot.ps");
 }
 
@@ -290,7 +284,7 @@ sub plot_spec {
 
 	$name = "$web_dir/month_avg_spec.gif";
 
-	system("echo ''|/opt/local/bin/gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $bin_dir/pnmflip -r270 |$bin_dir/ppmtogif > $name");
+	system("echo ''|$op_dir/gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $op_dir/pnmflip -r270 |$op_dir/ppmtogif > $name");
 	system("rm pgplot.ps");
 
 }
@@ -354,7 +348,7 @@ sub plot_bi {
 
 	$name = "$web_dir/month_avg_bi.gif";
 
-	system("echo ''|gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $bin_dir/pnmflip -r270 |$bin_dir/ppmtogif > $name");
+	system("echo ''|$op_dir/gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $op_dir/pnmflip -r270 |$op_dir/ppmtogif > $name");
 	system("rm pgplot.ps");
 
 }
