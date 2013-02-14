@@ -7,15 +7,23 @@ use PGPLOT;
 #											#
 #	author: t. isobe (tisobe@cfa.harvard.edu)					#
 #											#
-#	last update: Aug 01, 2012							#
+#	last update: Feb 14, 2013							#
 #											#
 #########################################################################################
+
+$comp_test = $ARGV[0];
+chomp $comp_test;
 
 ######################################################
 #
 #----- setting directories
 #
-$dir_list = '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list';
+if($comp_test =~ /test/i){
+        $dir_list = '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list_test';
+}else{
+        $dir_list = '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list';
+}
+
 open(FH, $dir_list);
 while(<FH>){
     chomp $_;
@@ -28,15 +36,30 @@ close(FH);
 #
 #--- find today's date
 #
+#
+#--- find today's date
+#
+if($comp_test =~ /test/i){
+	$tday = 13;
+	$tmon = 2;
+	$tyear = 2013;
+	$uyear = 2013;
+	$umon  = $tmon;
+}else{
+	($usec, $umin, $uhour, $umday, $umon, $uyear, $uwday, $uyday, $uisdst)= localtime(time);
 
-($usec, $umin, $uhour, $umday, $umon, $uyear, $uwday, $uyday, $uisdst)= localtime(time);
-
-$uyear += 1900;
-$umon++;
+	$uyear += 1900;
+	$umon++;
+}
 open(OUT,">$house_keeping/month_avg_data");
 
+if($comp_test =~ /test/i){
+	$tbegin = 2012;
+}else{
+	$tbegin = 2000;
+}
 OUTER:
-for($year = 2000; $year <= $uyear; $year++){
+for($year = $tbegin; $year <= $uyear; $year++){
 	foreach $mon (JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC){
 #
 #--- change month name from digits to letters
@@ -194,7 +217,7 @@ sub plot_img {
 	
 		pgmove($time[0], $y_val[0]);
 		pgpt(1, $time[0], $y_val[0], $point);
-		for($im = 1; $im < $count-1; $im++) {
+		for($im = 0; $im < $count; $im++) {
 			unless($y_val[$im] eq '*****' || $y_val[$im] eq ''){
 				pgdraw($time[$im], $y_val[$im]);
 				pgpt(1, $time[$im], $y_val[$im], $point);
@@ -271,7 +294,7 @@ sub plot_spec {
 	
 		pgmove($time[0], $y_val[0]);
 		pgpt(1, $time[0], $y_val[0], $point);
-		for($im = 1; $im < $count-1; $im++) {
+		for($im = 0; $im < $count; $im++) {
 			unless($y_val[$im] eq '*****' || $y_val[$im] eq ''){
 				pgdraw($time[$im], $y_val[$im]);
 				pgpt(1,$time[$im], $y_val[$im], $point);
@@ -334,7 +357,7 @@ sub plot_bi {
 		pgmove($time[0], $y_val[0]);
 		pgpt(1, $time[0], $y_val[0], $point);
 
-		for($im = 1; $im < $count-1; $im++) {
+		for($im = 0; $im < $count; $im++) {
 #			unless($y_val[$im] eq '*****' || $y_val[$im] eq ''){
 			if($time[$im]  > $xmin || $time[$im] < $xmax){
 				pgdraw($time[$im], $y_val[$im]);

@@ -7,15 +7,23 @@ use PGPLOT;
 #                                                                                       #
 #	author: t. isobe (tisobe@cfa.harvard.edu)					#
 #											#
-#	Last Update: aug 01, 2012							#
+#	Last Update: Feb 14, 2013							#
 #                                                                                       #
 #########################################################################################
+
+$comp_test = $ARGV[0];
+chomp $comp_test;
 
 ######################################################
 #
 #----- setting directories
 #
-$dir_list = '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list';
+if($comp_test =~ /test/i){
+        $dir_list = '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list_test';
+}else{
+        $dir_list = '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list';
+}
+
 open(FH, $dir_list);
 while(<FH>){
     chomp $_;
@@ -23,7 +31,6 @@ while(<FH>){
     ${$atemp[0]} = $atemp[1];
     }
 close(FH);
-
 
 ######################################################
 
@@ -485,18 +492,25 @@ sub check_date {
 #
 #--- find today' date
 #
-        ($usec, $umin, $uhour, $umday, $umon, $uyear, $uwday, $uyday, $uisdst)= localtime(time);
+	if($comp_test =~ /test/i){
+		$tday = 13;
+		$tmon = 2;
+		$tyear = 2013;
+		$uyear = 2013;
+		$umon  = 2;
+	}else{
+        	($usec, $umin, $uhour, $umday, $umon, $uyear, $uwday, $uyday, $uisdst)= localtime(time);
 
-        @input_data_list = ();
+        	@input_data_list = ();
 
-        $tot_ent = 1;
-	$uyear  += 1900;
-	$umon++;
+        	$tot_ent = 1;
+		$uyear  += 1900;
+		$umon++;
 
-        $tday    = $umday;
-        $tmon    = $umon;
-        $tyear   = $uyear;
-
+        	$tday    = $umday;
+        	$tmon    = $umon;
+        	$tyear   = $uyear;
+	}
 
         $lday    = $tday - 10;
         $lmon    = $tmon;
@@ -625,7 +639,11 @@ sub check_date {
 
 sub get_data_list {
 
-        system("ls -d  /dsops/ap/sdp/cache/*/ephin/*lc1.fits > $house_keeping/ephin_dir_list");
+	if($comp_test =~ /test/i){
+        	system("ls -d  /data/mta/Script/ACIS/Count_rate/house_keeping/Test_data_save/Ephin_data/*lc1.fits > $house_keeping/ephin_dir_list");
+	}else{
+        	system("ls -d  /dsops/ap/sdp/cache/*/ephin/*lc1.fits > $house_keeping/ephin_dir_list");
+	}
         open(FH, "$house_keeping/ephin_dir_list");
         @dir_list = ();
         while(<FH>){

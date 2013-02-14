@@ -10,15 +10,24 @@ use PGPLOT;
 #											#
 #	Author: Takashi Isobe (tisobe@cfa.havard.edu)					#
 #											#
-#	Last Update: Aug 01, 2012							#
+#	Last Update: Feb 13, 2013							#
 #											#
 #########################################################################################
+
+
+$comp_test = $ARGV[0];
+chomp $comp_test;
 
 ######################################################
 #
 #----- setting directories
 #
-$dir_list = '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list';
+if($comp_test =~ /test/i){
+        $dir_list = '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list_test';
+}else{
+        $dir_list = '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list';
+}
+
 open(FH, $dir_list);
 while(<FH>){
     chomp $_;
@@ -48,7 +57,6 @@ st_change_date_format();
 
 $month_min = $dom;
 $month_max = $month_min + 31;
-
 
 #
 #----  find new data file from /dsops  
@@ -298,6 +306,14 @@ for($i = 0; $i < 10; $i++) {
 	$ymin = $temp[0];
 	$ymax = $temp[$count-1];
 
+	if($ymin == $ymax){
+		if($ymin == 0){
+			$ymax = 5;
+		}else{
+			$ymin = 0;
+		}
+	}
+
 	$ydel = 0.1*($ymax - $ymin);
 	$ymin = 0;
 	$ymax = $ymax + $ydel;	
@@ -528,18 +544,25 @@ sub check_date {
 #
 #--- find about today
 #
-        ($usec, $umin, $uhour, $umday, $umon, $uyear, $uwday, $uyday, $uisdst)= localtime(time);
+	if($comp_test =~ /test/i){
+		$tday = 13;
+		$tmon = 2;
+		$tyear = 2013;
+		$uyear = 2013;
+		$umon  = 2;
+	}else{
+        	($usec, $umin, $uhour, $umday, $umon, $uyear, $uwday, $uyday, $uisdst)= localtime(time);
 
-        @input_data_list = ();
+        	@input_data_list = ();
 
-        $tot_ent = 1;
-	$uyear  += 1900;
-	$umon++;
-
-        $tday  = $umday;
-        $tmon  = $umon;
-        $tyear = $uyear;
-
+        	$tot_ent = 1;
+		$uyear  += 1900;
+		$umon++;
+	
+        	$tday  = $umday;
+        	$tmon  = $umon;
+        	$tyear = $uyear;
+	}
 
         $lday  = $tday - 10;
         $lmon  = $tmon;
@@ -659,7 +682,11 @@ sub get_data_list {
 #---- make a list of evt1 fits files in /dspos/...
 #
 
-        system("ls -d  /dsops/ap/sdp/cache/*/acis/*evt1.fits > file_list");
+	if($comp_test =~ /test/i){
+        	system("ls -d  /data/mta/Script/ACIS/Count_rate/house_keeping/Test_data_save/ACIS_rad_data/*evt1.fits > file_list");
+	}else{
+        	system("ls -d  /dsops/ap/sdp/cache/*/acis/*evt1.fits > file_list");
+	}
         open(FH,'./file_list');
         @file_list = ();
         while(<FH>){
@@ -823,6 +850,14 @@ sub plot_ccd7 {
 	@temp = sort{$a <=> $b} @y_val;
 	$ymin = $temp[0];
 	$ymax = $temp[$count-1];
+
+	if($ymin == $ymax){
+		if($ymin == 0){
+			$ymax = 5;
+		}else{
+			$ymin = 0;
+		}
+	}
 
 	$ydel = 0.1*($ymax - $ymin);
 	$ymin = 0;

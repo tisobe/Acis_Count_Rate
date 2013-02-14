@@ -9,15 +9,23 @@ use PGPLOT;
 #											#
 #	Author: Takashi Isobe (tisobe@cfa.harvard.edu)					#
 #											#
-#	Last Update: Aug 01, 2011  							#
+#	Last Update: Feb 13, 2013  							#
 #											#
 #########################################################################################
+
+$comp_test = $ARGV[0];
+chomp $comp_test;
 
 ######################################################
 #
 #----- setting directories
 #
-$dir_list = '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list';
+if($comp_test =~ /test/i){
+        $dir_list = '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list_test';
+}else{
+        $dir_list = '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list';
+}
+
 open(FH, $dir_list);
 while(<FH>){
     chomp $_;
@@ -33,28 +41,16 @@ $interval   = '0.05';			# bin size
 #
 #--- find today's date in DOM
 #
-
-($usec, $umin, $uhour, $umday, $umon, $uyear, $uwday, $uyday, $uisdst)= localtime(time);	
+if($comp_test =~ /test/i){
+    $uyday = 43;
+    $uyear = 113;
+}else{
+	($usec, $umin, $uhour, $umday, $umon, $uyear, $uwday, $uyday, $uisdst)= localtime(time);	
+}
 $today = $uyday + ($uyear - 100) * 365 + 162;
 
-if($uyear > 2000){
-	$today++;
-}
-if($uyear > 2004){
-	$today++;
-}
-if($uyear > 2008){
-	$today++;
-}
-if($uyear > 2012){
-	$today++;		
-}
-if($uyear > 2016){
-	$today++;		
-}
-if($uyear > 2020){
-	$today++;		
-}
+$tdiff = int(0.25 * ($uyear + 3));
+$today += $tdiff;
 
 #
 #---- plot setting 

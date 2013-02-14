@@ -6,15 +6,23 @@
 #									#
 #	author:	Isobe Takashi (tisobe@cfa.harvard.edu)			#
 #									#
-#	last update: Aug 01, 2012   					#	
+#	last update: Feb 11, 2013   					#	
 #									#
 #########################################################################
+
+$comp_test = $ARGV[0];
+chomp $comp_test;
 
 ######################################################
 #
 #----- setting directories
 #
-$dir_list = '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list';
+if($comp_test =~ /test/i){
+        $dir_list = '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list_test';
+}else{
+        $dir_list = '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list';
+}
+
 open(FH, $dir_list);
 while(<FH>){
     chomp $_;
@@ -29,11 +37,18 @@ close(FH);
 #---  find today's date and convert them appropriately
 #
 
-($usec, $umin, $uhour, $umday, $umon, $uyear, $uwday, $uyday, $uisdst)= localtime(time);
+if($comp_test =~ /test/i){
+	$tday = 13;
+    	$umon = 2;
+	$cmon = 2;
+	$uyear = 2013;
+}else{
+	($usec, $umin, $uhour, $umday, $umon, $uyear, $uwday, $uyday, $uisdst)= localtime(time);
 
-$uyear += 1900;
-$umon++;
-$cmon   = $umon;
+	$uyear += 1900;
+	$umon++;
+	$cmon   = $umon;
+}
 
 #
 #--- change month in digit into letters

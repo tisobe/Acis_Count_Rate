@@ -5,17 +5,30 @@ use PGPLOT;
 #											#
 #	radiation_data.perl: extract radiation data					#
 #											#
+#	NOTE: THIS SCRIPT DOES NOT PRODUCE ANY MEANINGFUL DATA ANY MORE. FOR THE TEST	#
+#	      THIS SCRIPT SETS UP THE OUTPUT DIRECTORY, BUT DOES NOT GET ANY RADIATION	#
+#	      DATA. IF YOU LIKE TO SEE THE RADIATION DATA GO TO INTERRUPT. 		#
+#		(T. I. FEB 13, 2013)							#
+#											#
 #	author: t. isobe (tisobe@cfa.harvard.edu)					#
 #											#
-#	Last Update: Aug 01, 2012							#
+#	Last Update: Feb 13, 2013							#
 #											#
 #########################################################################################
+
+
+$comp_test = $ARGV[0];
+chomp $comp_test;
 
 ######################################################
 #
 #----- setting directories
 #
-$dir_list = '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list';
+if($comp_test =~ /test/i){
+	$dir_list = '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list_test';
+}else{
+	$dir_list = '/data/mta/Script/ACIS/Count_rate/house_keeping/dir_list';
+}
 open(FH, $dir_list);
 while(<FH>){
     chomp $_;
@@ -25,6 +38,26 @@ while(<FH>){
 close(FH);
 
 ######################################################
+
+#
+#--- if this is a test case, create a test output directory
+#
+
+
+if($comp_test =~ /test/i){
+	system("mkdir $web_dir");
+	system("mkdir $web_dir/house_keeping");
+	
+	system("cp /data/mta/Script/ACIS/Count_rate/house_keeping/Test_data_save/ephin_old_dir_list $web_dir/house_keeping/.");
+	system("cp /data/mta/Script/ACIS/Count_rate/house_keeping/Test_data_save/month_avg_data     $web_dir/house_keeping/.");
+	system("cp /data/mta/Script/ACIS/Count_rate/house_keeping/Test_data_save/old_file_list      $web_dir/house_keeping/.");
+	system("cp /data/mta/Script/ACIS/Count_rate/house_keeping/Test_data_save/rad_data           $web_dir/house_keeping/.");
+	
+	system("cp -r /data/mta/Script/ACIS/Count_rate/house_keeping/Test_data_save/JAN2013         $web_dir/");
+	system("cp -r /data/mta/Script/ACIS/Count_rate/house_keeping/Test_data_save/FEB2013         $web_dir/");
+}
+
+exit 1;			#---- this script cannot get any more data from the given data directory; so terminate at here. 
 
 #
 #--- this check starting and ending dates of the this period and one before
@@ -60,18 +93,23 @@ sub check_date {
 #
 #--- find today's date
 #
-        ($usec, $umin, $uhour, $umday, $umon, $uyear, $uwday, $uyday, $uisdst)= localtime(time);
+	if($comp_test =~ /test/i){
+		$tday = 13;
+		$tmon = 2;
+		$tyear = 2013;
+	}else{
+        	($usec, $umin, $uhour, $umday, $umon, $uyear, $uwday, $uyday, $uisdst)= localtime(time);
+
+        	$tot_ent = 1;
+		$uyear  += 1900;
+		$umon++;
+
+        	$tday  = $umday;
+        	$tmon  = $umon;
+        	$tyear = $uyear;
+	}
 
         @input_data_list = ();
-
-        $tot_ent = 1;
-	$uyear  += 1900;
-	$umon++;
-
-        $tday  = $umday;
-        $tmon  = $umon;
-        $tyear = $uyear;
-
 
         $lday  = $tday - 10;
         $lmon  = $tmon;
@@ -119,7 +157,8 @@ sub check_date {
                         push(@start_year,  $tyear);
                         push(@start_month, $lmon);
 
-                        if($tyear == 2000 || $tyear == 2004 || $tyear == 2008 || $tyear ==2012){
+			$tchk = 4.0 * int($tyear/4.0);
+			if($tchk == $tyear){
                                 $lday++;
                                 push(@end_date, '29');
                         }else{
@@ -199,8 +238,12 @@ sub get_rad_data {
 
 sub get_rad {
 	
-	$cmon = "$cmon".'*';
-	system("ls -d  /data/mpcrit1/mplogs/$syear/$cmon > ./zdata_list");
+	if($comp_test =~ /test/i){
+		system("ls -d /data/mta/Script/ACIS/Count_rate/house_keeping/Test_data_save/Test_input/FEB* > ./zdata_list");
+	}else{
+		$cmon = "$cmon".'*';
+		system("ls -d  /data/mpcrit1/mplogs/$syear/$cmon > ./zdata_list");
+	}
 	
 	@data_list = ();
 	open(FH,'./zdata_list');
@@ -377,24 +420,8 @@ sub change_date_format {
 		$dom -= 202;
 	}else{
 		$dom = $dom + 163 + ($year - 2000) * 365;
-		if($year > 2000) {
-			$dom++;
-		}
-		if($year > 2004) {
-			$dom++;
-		}
-		if($year > 2008) {
-			$dom++;
-		}
-		if($year > 2012) {
-			$dom++;
-		}
-		if($year > 2016) {
-			$dom++;
-		}
-		if($year > 2020) {
-			$dom++;
-		}
+		$add = int(0.25 * ($year - 1997));
+		$dom += $add;
 	}
 }
 
