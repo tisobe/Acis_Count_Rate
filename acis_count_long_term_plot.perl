@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env /usr/local/bin/perl
 use PGPLOT;
 
 #########################################################################################
@@ -9,7 +9,7 @@ use PGPLOT;
 #											#
 #	Author: Takashi Isobe (tisobe@cfa.harvard.edu)					#
 #											#
-#	Last Update: Feb 13, 2013  							#
+#	Last Update: Apr 15, 2013  							#
 #											#
 #########################################################################################
 
@@ -166,7 +166,7 @@ pgclos;
 
 $output = "$web_dir/".'long_term_plot.gif';
 
-system("echo ''|$op_dir/gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $op_dir/pnmflip -r270 |$op_dir/ppmtogif > $output");
+system("echo ''|gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| pnmflip -r270 |ppmtogif > $output");
 
 system("rm pgplot.ps");
 

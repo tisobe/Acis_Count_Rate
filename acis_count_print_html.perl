@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env /usr/local/bin/perl
 
 #########################################################################
 #									#
@@ -6,7 +6,7 @@
 #									#
 #	author:	Isobe Takashi (tisobe@cfa.harvard.edu)			#
 #									#
-#	last update: Feb 11, 2013   					#	
+#	last update: Apr 15, 2013   					#	
 #									#
 #########################################################################
 
@@ -325,7 +325,7 @@ sub print_month_html{
 	print OUT "\n";
 	print OUT 'To check a dose map, please go to';
 	print OUT "\n";
-	print OUT '<A HREF=http://asc.harvard.edu/mta/REPORTS/MONTHLY/';
+	print OUT '<A HREF=https://cxc.cfa.harvard.edu/mta/REPORTS/MONTHLY/';
 	print OUT "\n";
 	print OUT "$cmon","$uyear",'/MONTHLY.html>',"$cmon",' monthly report';
 	print OUT "\n";

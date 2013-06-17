@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env /usr/local/bin/perl
 use PGPLOT;
 
 #########################################################################################
@@ -7,7 +7,7 @@ use PGPLOT;
 #                                                                                       #
 #	author: t. isobe (tisobe@cfa.harvard.edu)					#
 #											#
-#	Last Update: Feb 14, 2013							#
+#	Last Update: Apr 15, 2013							#
 #                                                                                       #
 #########################################################################################
 
@@ -288,7 +288,7 @@ plot_fig();
 	
 pgclos;
 	
-system("echo ''|$op_dir/gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $op_dir/pnmflip -r270 |$op_dir/ppmtogif > $mon_name/ephin_rate.gif");
+system("echo ''|gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| pnmflip -r270 |ppmtogif > $mon_name/ephin_rate.gif");
 
 system("rm pgplot.ps");
 

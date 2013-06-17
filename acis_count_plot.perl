@@ -1,4 +1,4 @@
-#!/proj/axaf/bin/perl
+#!/usr/bin/env /usr/local/bin/perl
 use PGPLOT;
 #use lib '/home/rpete/local/perlmods/sun4-solaris-thread';
 #use lib '/opt/local/lib/perl5/5.00501/sun4-solaris-thread';			#on colossus
@@ -10,7 +10,7 @@ use PGPLOT;
 #											#
 #	Author: Takashi Isobe (tisobe@cfa.havard.edu)					#
 #											#
-#	Last Update: Feb 13, 2013							#
+#	Last Update: Apr 15, 2013							#
 #											#
 #########################################################################################
 
@@ -329,7 +329,7 @@ for($i = 0; $i < 10; $i++) {
 	plot_fig();
 	pgclos;
 
-	system("echo ''|$op_dir/gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $op_dir/pnmflip -r270 |$op_dir/ppmtogif > $mon_name/$output_file");
+	system("echo ''|gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| pnmflip -r270 |ppmtogif > $mon_name/$output_file");
 	system("rm pgplot.ps");
 
 }
@@ -873,7 +873,7 @@ sub plot_ccd7 {
 	plot_fig_ccd7();
 	pgclos();
 
-	system("echo ''|$op_dir/gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $op_dir/pnmflip -r270 |$op_dir/ppmtogif > $web_dir/$output_file");
+	system("echo ''|gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| pnmflip -r270 |ppmtogif > $web_dir/$output_file");
 
 	system("rm pgplot.ps");
 }
@@ -977,7 +977,7 @@ sub plot_comb_5_7 {
 
 	pgclos;
 	
-	system("echo ''|$op_dir/gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| $op_dir/pnmflip -r270 |$op_dir/ppmtogif > $dir/acis_dose_ccd_5_7.gif");
+	system("echo ''|gs -sDEVICE=ppmraw  -r256x256 -q -NOPAUSE -sOutputFile=-  pgplot.ps| pnmflip -r270 |ppmtogif > $dir/acis_dose_ccd_5_7.gif");
 ###	system("rm pgplot.ps");
 	
 }

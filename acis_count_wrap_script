@@ -1,1 +1,1 @@
-/bin/tcsh  < /data/mta/Script/ACIS/Count_rate/Acis_Count_Rate/acis_count_script
+TERM=dummy; export TERM; /bin/tcsh  < /data/mta/Script/ACIS/Count_rate/Acis_Count_Rate/acis_count_script

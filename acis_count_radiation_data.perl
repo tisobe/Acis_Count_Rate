@@ -1,4 +1,4 @@
-#!/proj/axaf/bin/perl
+#!/usr/bin/env /usr/local/bin/perl
 use PGPLOT;
 
 #########################################################################################
@@ -12,7 +12,7 @@ use PGPLOT;
 #											#
 #	author: t. isobe (tisobe@cfa.harvard.edu)					#
 #											#
-#	Last Update: Feb 13, 2013							#
+#	Last Update: Apr 15, 2013							#
 #											#
 #########################################################################################
 
