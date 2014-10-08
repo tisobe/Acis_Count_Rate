@@ -1,0 +1,3 @@
+
+setenv PYTHONPATH /proj/sot/ska/arch/x86_64-linux_CentOS-5/lib/python2.7/site-packages
+/data/mta/Script/ACIS/Count_rate/Scripts/count_rate_main.py
